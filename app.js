@@ -1,31 +1,28 @@
 require('dotenv').config()
 
 // Dependencies
-const express = require('espress');
-const mongoose = require('mongoose');
+const express = require('express');
 const cors = require('cors');
+const bodyParser = require('body-parser');
+const database = require('./api/database/database');
 
+const app = express();
+
+database.connect();
 
 // Routes
-
-// Starting mongoDB
-mongoose.connect(process.env.MONGO_CONNECTION, {
-    useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useCreateIndex: true,
-});
+const userRoute = require('./api/routes/user');
 
 // Middlewares
 app.use(express.static('public'));
-app.use(bodyParse.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(cors({
     credentials: true,
 }));
 
-const app = express();
-
 // Use Routes
+app.use('/user', userRoute);
 
 /** Creates and passes a 404 error if the route is not a register route*/ 
 app.use((req, res, next) => {
