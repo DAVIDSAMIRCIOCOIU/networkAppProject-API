@@ -8,7 +8,7 @@ const userSchema = mongoose.Schema({
     password: {type: String, required: true},
     role: {type: String, enum: ['admin', 'customer', 'networker'], default: 'networker', immutable: true},
     schedule: {type: mongoose.Schema.Types.ObjectId, ref: 'Schedule'},
-    customers: [{type: mongoose.Schema.Types.ObjectId, ref: 'Customer'}]
+    customers: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
 });
 
 module.exports = mongoose.model('User', userSchema);
