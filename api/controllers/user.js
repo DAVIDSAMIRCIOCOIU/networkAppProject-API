@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
+const jwt = require('jsonwebtoken');
 
 /** Registers a user checking against email.
  */
@@ -54,6 +55,47 @@ exports.user_signup = (req, res, next) => {
 };
 
 /** Logins with user credentials */
-exports.user_login = (req, res, next) => {};
+exports.user_login = (req, res, next) => {
+    User.findOne({email: req.body.email})
+    .exec()
+    .then(user => {
+        if(user === null) {
+            return res.status(401).json({
+                message: "Auth failed."
+            });
+        } else {
+            bcrypt.compare(req.body.password, user.password, (err, result) => {
+                if(err) {
+                    return res.status(401).json({
+                        message: "Auth Failed"
+                    });
+                } else if (result) {
+                    const token = jwt.sign(
+                    {
+                        email: user.email,
+                        role: user.role
+                    }, 
+                    process.env.JWT_KEY,
+                    {
+                        expiresIn: "1h"
+                    });
+                    return res.status(200).json({
+                        message: "Auth successful",
+                        token: token
+                    });
+                } else {
+                    res.status(401).json({
+                        message: "Auth failed."
+                    });
+                }
+            });
+        }
+    })
+    .catch((err) => {
+        res.status(500).json({
+          error: err,
+        });
+      });
+};
 
 exports.user_delete = (req, res, next) => {};
